@@ -26,7 +26,7 @@ defmodule Keycloak.Client do
       site: "#{site}/auth",
       authorize_url: "/realms/#{realm}/protocol/openid-connect/auth",
       token_url: "/realms/#{realm}/protocol/openid-connect/token",
-      serializers: %{"application/json" => Poison}
+      serializers: %{"application/json" => Jason}
     ]
     |> Keyword.merge(config)
   end
@@ -55,5 +55,27 @@ defmodule Keycloak.Client do
     client
     |> Client.put_header("accept", "application/json")
     |> Client.get("/realms/#{realm}/protocol/openid-connect/userinfo")
+  end
+
+  @spec discovery_document(OAuth2.Client.t()) :: {:ok, OAuth2.Response.t()} | {:error, String.t()}
+  def discovery_document(%Client{} = client) do
+    realm =
+      config()
+      |> Keyword.get(:realm)
+
+    client
+    |> Client.put_header("accept", "application/json")
+    |> Client.get("/realms/#{realm}/.well-known/openid-configuration")
+  end
+
+  @spec jwks(OAuth2.Client.t()) :: {:ok, OAuth2.Response.t()} | {:error, String.t()}
+  def jwks(%Client{} = client) do
+    realm =
+      config()
+      |> Keyword.get(:realm)
+
+    client
+    |> Client.put_header("accept", "application/json")
+    |> Client.get("/realms/#{realm}/protocol/openid-connect/certs")
   end
 end

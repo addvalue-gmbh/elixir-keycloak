@@ -25,7 +25,7 @@ defmodule Keycloak.Mixfile do
       {:joken, "~> 2.0"},
       {:oauth2, "~> 2.0"},
       {:plug, "~> 1.4"},
-      {:poison, "~> 4.0"},
+      {:jason, "~> 1.2"},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.26", only: :dev, runtime: false},
       {:rexbug, "~> 1.0", only: :dev, runtime: false}
