@@ -26,11 +26,25 @@ defmodule Keycloak do
   alias OAuth2.Strategy.AuthCode
 
   @doc """
-  Creates a authori
+  Creates a authorization url
   """
   def authorize_url!(params \\ []) do
     Client.new()
     |> OAuth2.Client.authorize_url!(params)
+  end
+
+  @doc """
+  Creates a logout url
+  """
+  def logout_url!(params \\ []) do
+    Client.logout_url(params)
+  end
+
+  @doc """
+  Creates a account self service url
+  """
+  def account_url! do
+    Client.account_url()
   end
 
   @doc """
@@ -43,6 +57,22 @@ defmodule Keycloak do
 
     Client.new()
     |> OAuth2.Client.get_token!(data)
+  end
+
+  @doc """
+  Creates a `OAuth2.Client` using the keycloak configuration and
+  attempts fetch a refresh token.
+  """
+  @spec refresh_token(String.t(), keyword(), keyword()) :: any()
+  def refresh_token(token, params \\ [], _headers \\ []) do
+    data =
+      Keyword.merge(params, client_secret: Client.new().client_secret)
+
+    token =
+      OAuth2.AccessToken.new(%{"refresh_token" => token})
+
+    Client.new(token: token)
+    |> OAuth2.Client.refresh_token(data)
   end
 
   @doc """

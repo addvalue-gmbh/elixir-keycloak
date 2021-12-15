@@ -16,9 +16,14 @@ defmodule Keycloak.Client do
 
   @spec config() :: keyword()
   defp config() do
-    config = Application.get_all_env(:keycloak)
-    {realm, config} = Keyword.pop(config, :realm)
-    {site, config} = Keyword.pop(config, :site)
+    config =
+      Application.get_all_env(:keycloak)
+
+    {realm, config} =
+      Keyword.pop(config, :realm)
+
+    {site, config} =
+      Keyword.pop(config, :site)
 
     [
       strategy: Keycloak,
@@ -40,6 +45,38 @@ defmodule Keycloak.Client do
     config()
     |> Keyword.merge(opts)
     |> Client.new()
+  end
+
+  @spec logout_url(keyword()) :: String.t()
+  def logout_url(params) do
+    realm =
+      Keyword.get(config(), :realm)
+
+    site =
+      Keyword.get(config(), :site)
+
+    "#{site}/realms/#{realm}/protocol/openid-connect/logout"
+    |> URI.parse()
+    |> may_put_logout_params(params)
+    |> URI.to_string()
+  end
+
+  defp may_put_logout_params(uri, []), do: uri
+  defp may_put_logout_params(uri, params) do
+    Map.put(uri, :query, URI.encode_query(params))
+  end
+
+  @spec account_url() :: String.t()
+  def account_url do
+    realm =
+      Keyword.get(config(), :realm)
+
+    site =
+      Keyword.get(config(), :site)
+
+    "#{site}/realms/#{realm}/account"
+    |> URI.parse()
+    |> URI.to_string()
   end
 
   @doc """
